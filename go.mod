@@ -1,6 +1,6 @@
 module github.com/bokuwakuma/go-webapp-samples
 
-go 1.14
+go 1.16
 
 require (
 	github.com/gorilla/context v1.1.1

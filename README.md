@@ -1,4 +1,4 @@
-# go-webapp-sample
+# go-webapp-samples
 Go with gorilla
 
 ## Getting started

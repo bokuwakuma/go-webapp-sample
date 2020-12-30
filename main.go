@@ -1,48 +1,42 @@
 package main
 
 import (
-	"fmt"
 	"net/http"
-
-	"github.com/gorilla/mux"
+	"text/template"
 )
 
 func main() {
-	r := mux.NewRouter()
+	mux := http.NewServeMux()
 
-	// ハンドラ
-	r.HandleFunc("/", YourHandler)
+	files := http.FileServer(http.Dir("/public"))
+	mux.Handle("/static", http.StripPrefix("/static/", files))
 
-	// パスパラメータ
-	r.HandleFunc("/hello/{name}", VarsHandler)
+	// dir, _ := os.Getwd()
+	// http.HandleFunc("/", index)
+	// http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir(dir+"/static/"))))
+	// http.Handle("/node_modules/", http.StripPrefix("/node_modules", http.FileServer(http.Dir(dir+"/node_modules"))))
 
-	// パス変数で正規表現を使用
-	r.HandleFunc("/hello/{name}/{age:[0-9]+}", RegexHandler)
+	mux.HandleFunc("/", index)
 
-	// クエリパラメータ
-	r.HandleFunc("/hi/", QueryStringHandler)
+	server := &http.Server{
+		Addr:    "localhost:8090",
+		Handler: mux,
+	}
 
-	// サービス
-	http.ListenAndServe(":8001", r)
+	server.ListenAndServe()
+
 }
 
-// YourHandler 通常
-func YourHandler(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("Gorilla!\n"))
-}
-
-// VarsHandler 変数
-func VarsHandler(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	fmt.Fprintf(w, "%s Loves Gorilla\n", vars["name"])
-}
-
-// RegexHandler 正規表現
-func RegexHandler(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	fmt.Fprintf(w, "%s is %s years old\n", vars["name"], vars["age"])
-}
-
-// QueryStringHandler クエリ
-func QueryStringHandler(w http.ResponseWriter, r *http.Request) {
+// indexのハンドラ関数
+func index(w http.ResponseWriter, r *http.Request) {
+	t, err := template.ParseFiles("tempates/index.html")
+	// if err != nil {
+	// 	panic(err.Error())
+	// }
+	// if err := t.Execute(w, nil); err != nil {
+	// 	panic(err.Error())
+	// }
+	if err == nil {
+		t.Execute(w, nil)
+	}
 }
